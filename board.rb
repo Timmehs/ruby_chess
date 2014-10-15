@@ -30,23 +30,17 @@ class Board
   
   def display
     puts "CHESS".center(28)
+    
     @grid.each_with_index do |row, i|
-      row_str = "\e[36m#{i}\e[0m"
+      row_str = "\e[36m#{8 - i}\e[0m"
       row.each_with_index do |piece, j|
-        if piece
-          row_str += piece.to_s.rjust(3)
-        else
-          row_str += "_".rjust(3)
-        end
+        row_str += piece ? piece.to_s.rjust(3) : "_".rjust(3)
       end
       puts row_str
     end
     
     footer = ' '
-    (0..7).each do |index|
-      footer += "\e[36m#{index.to_s.rjust(3)}\e[0m"
-    end
-    
+    ('A'..'H').each { |letter| footer += "\e[36m#{letter.rjust(3)}\e[0m" }
     puts footer
   end
   
@@ -109,16 +103,16 @@ class Board
         
       self[pos1], self[pos2] = self[pos2], self[pos1]
       piece.update_pos
-    
+      return true
     rescue IllegalMoveError => e
       puts "IllegalMoveError: #{e}"
+      return false
     end
   end
   
   def checkmate?(color)
     @grid.flatten.compact.each do |piece|
       next if piece.color != color
-      puts "#{piece.class} #{piece.valid_moves}"  
       return false unless piece.valid_moves.empty?
     end
     
@@ -164,6 +158,5 @@ class Board
 
     dup_board
   end
-  
   
 end

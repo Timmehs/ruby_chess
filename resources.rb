@@ -8,3 +8,5 @@ require './stepping_piece'
 require './knight.rb'
 require './king.rb'
 require './pawn'
+require './human_player'
+

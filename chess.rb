@@ -1,28 +1,32 @@
 require './resources'
-  STRAIGHTS = [[-1,  0], [1,  0], [0, -1], [0,  1]]
+class Chess
+  
+  def initialize(save_game = false)
+    @board = Board.new
+    @player = HumanPlayer.new(@board)
+  end
+  
+  def play
+    puts "White goes first"
+    white_turn = true
+    until @board.checkmate?(:white) || @board.checkmate?(:black)
+      begin
+        @board.display
+        turn = white_turn ? :white : :black
+        puts "#{turn.to_s.capitalize} team's turn"
+        piece, target = @player.play_turn
+        raise StandardError if @board[piece].color != turn
+        @board.move(piece, target)
+      rescue StandardError
+        puts "CANNOT MOVE OPPONENT'S PIECE!"
+        retry
+      end
+      white_turn = !white_turn
+    end
+    winner = @board.checkmate?(:white) ? "black" : "white"
+    puts "CHECKMATE!!! #{winner} won!"
+    
+  end
+end
 
-# q = Queen.new([3,3], :black, b)
-# bish = Bishop.new([0,0], :black, b)
-# r = Rook.new([7,0], :black, b)
-# p q.moves
-# p bish.moves
-# p r.moves
-
-b = Board.new
-
-
-b.move([1,5], [3,5])
-b.move([6,4], [4,4])
-b.move([1,6], [3,6])
-b.move([7,3], [3,7])
-b.display
-
-p b.checkmate?(:black)
-p b[[0,4]].valid_moves
-
-
-
-
-
-
-
+Chess.new.play

@@ -42,5 +42,4 @@ class Piece
   def valid_moves
     self.moves.select {|move| move unless move_into_check?(move)}
   end
-  
 end
