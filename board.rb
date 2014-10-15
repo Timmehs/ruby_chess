@@ -1,37 +1,35 @@
 class Board
   attr_reader :grid
   
-  def initialize
-    @grid = new_board
+  class IllegalMoveError < StandardError; end
+  
+  def initialize(empty_board = false)
+      @grid = Array.new(8) { Array.new(8) }
+      set_board(@grid) unless empty_board
   end
   
   def in_check?(color)
     king = king_pos(color)
     check = false
-    @grid.each do |row|
-      row.each do |piece|
-        if piece && piece.color == color
-          check = true if piece.moves.include?(king)  
-        end
+    @grid.flatten.compact.each do |piece|
+      if piece && piece.color != color && piece.moves.include?(king)
+        check = true
       end
     end
+
     check
   end
   
   def king_pos(color)
-    @grid.each do |row|
-      row.each do |piece|
-        if piece 
-          if piece.is_a?(King) && piece.color == color
-            puts "KING FOUND: #{piece.pos}"
-          end
-        end
+    @grid.flatten.each do |piece|
+      if piece && piece.is_a?(King) && piece.color == color
+        return piece.pos
       end
     end
   end
   
   def display
-    puts "          CHESS"
+    puts "CHESS".center(28)
     @grid.each_with_index do |row, i|
       row_str = "\e[36m#{i}\e[0m"
       row.each_with_index do |piece, j|
@@ -43,21 +41,20 @@ class Board
       end
       puts row_str
     end
+    
     footer = ' '
     (0..7).each do |index|
       footer += "\e[36m#{index.to_s.rjust(3)}\e[0m"
     end
+    
     puts footer
   end
   
-  def new_board
-    matrix = Array.new(8, Array.new(8))
+  def set_board(matrix)
     [:black, :white].each do |color|
       create_pawn_row(color, matrix)
       create_back_row(color, matrix)
     end
-    
-    matrix
   end
   
   def create_pawn_row(color, matrix)
@@ -99,4 +96,46 @@ class Board
 
     @grid[row][col] = piece
   end
+  
+  def move(pos1, pos2)
+    
+    begin
+      
+      piece = self[pos1]
+      target = self[pos2]
+      if !piece
+        raise IllegalMoveError.new("Can't move empty place") 
+      elsif !piece.moves.include?(pos2)
+        raise IllegalMoveError.new("Cannot move to that position!")
+      end
+      self[pos1], self[pos2] = self[pos2], self[pos1]
+      self[pos1].update_pos unless self[pos1].nil?
+      self[pos2].update_pos unless self[pos2].nil?
+    
+    rescue IllegalMoveError => e
+      puts "IllegalMoveError: #{e}"
+    end
+  end
+  
+  def find(piece)
+    @grid.each_with_index do |row, i|
+      row.each_index do |j|
+        return [i, j] if self[[i,j]] == piece
+      end
+    end
+  end
+
+  def dup
+    dup_board = Board.new(true)
+    @grid.flatten.compact.each do |piece|
+      new_position = piece.pos
+      new_color = piece.color
+      new_piece = piece.class.new(new_position, new_color, dup_board )
+      dup_board[piece.pos] = new_piece
+    end
+
+    dup_board
+  end
+  
+  
 end

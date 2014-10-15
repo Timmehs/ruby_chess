@@ -2,7 +2,7 @@ class Piece
   attr_reader :pos, :color, :board
   attr_writer :pos
   
-  class IllegalMoveError < StandardError; end
+
   class NotImplementedError < StandardError; end
   
   def initialize(pos, color, board)
@@ -15,6 +15,10 @@ class Piece
     raise NotImplementedError.new("Moves method not implemented")
   end
   
+  def update_pos
+    @pos = @board.find(self)
+  end
+  
   
   def on_board?(pos)
     row, col = pos
@@ -22,13 +26,16 @@ class Piece
   end
   
   def valid_move?(pos)
-    on_board?(pos) && (@board[pos].nil? || @board[pos].color != @color)
-    # return false unless on_board?(pos)    #
-    # if !@board[pos].empty?
-    #   return false if @color == @board[pos].color
-    # else
-    #   return true
-    # end
+    on_board?(pos) && (is_enemy?(pos) || @board[pos].nil?)# && !move_into_check(pos)
+  end
+  
+  def is_enemy?(pos)
+    !@board[pos].nil? && @board[pos].color != @color
+  end
+  
+  def move_into_check(pos)
+    dup_board = @board.dup
+    dup_board.in_check?(@color)
   end
   
 end
