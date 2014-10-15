@@ -17,6 +17,8 @@ b.display
 
 p b.in_check?(:white)
 
+p b.find(b[[1,6]])
+
 
 
 

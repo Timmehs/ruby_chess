@@ -118,11 +118,7 @@ class Board
   end
   
   def find(piece)
-    @grid.each_with_index do |row, i|
-      row.each_index do |j|
-        return [i, j] if self[[i,j]] == piece
-      end
-    end
+    @grid.flatten.compact.each {|place| return place.pos if place == piece }
   end
 
   def dup
