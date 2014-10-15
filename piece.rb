@@ -26,16 +26,21 @@ class Piece
   end
   
   def valid_move?(pos)
-    on_board?(pos) && (is_enemy?(pos) || @board[pos].nil?)# && !move_into_check(pos)
+    on_board?(pos) && (is_enemy?(pos) || @board[pos].nil?) 
   end
   
   def is_enemy?(pos)
     !@board[pos].nil? && @board[pos].color != @color
   end
   
-  def move_into_check(pos)
+  def move_into_check?(new_pos)
     dup_board = @board.dup
+    dup_board.move!(@pos, new_pos)
     dup_board.in_check?(@color)
+  end
+  
+  def valid_moves
+    self.moves.select {|move| move unless move_into_check?(move)}
   end
   
 end

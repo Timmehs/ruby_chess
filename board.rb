@@ -100,25 +100,57 @@ class Board
   def move(pos1, pos2)
     
     begin
-      
       piece = self[pos1]
+      raise IllegalMoveError.new("Can't move empty place") if !piece
+      moves = piece.valid_moves
       target = self[pos2]
-      if !piece
-        raise IllegalMoveError.new("Can't move empty place") 
-      elsif !piece.moves.include?(pos2)
-        raise IllegalMoveError.new("Cannot move to that position!")
-      end
+      raise IllegalMoveError.new("Illegal move")if !moves.include?(pos2)
+      
+        
       self[pos1], self[pos2] = self[pos2], self[pos1]
-      self[pos1].update_pos unless self[pos1].nil?
-      self[pos2].update_pos unless self[pos2].nil?
+      piece.update_pos
     
     rescue IllegalMoveError => e
       puts "IllegalMoveError: #{e}"
     end
   end
   
+  def checkmate?(color)
+    @grid.flatten.compact.each do |piece|
+      next if piece.color != color
+      puts "#{piece.class} #{piece.valid_moves}"  
+      return false unless piece.valid_moves.empty?
+    end
+    
+    true
+  end
+  
+  # moving for tests
+  def move!(pos1, pos2)
+    begin
+      piece = self[pos1]
+      raise IllegalMoveError.new("Can't move empty place") if !piece
+      moves = piece.moves
+      target = self[pos2]
+      raise IllegalMoveError.new("Illegal move")if !moves.include?(pos2)
+      
+        
+      self[pos1], self[pos2] = self[pos2], self[pos1]
+      piece.update_pos
+    
+    rescue IllegalMoveError => e
+      puts "IllegalMoveError: #{e}"
+    end
+  
+  end
+  
+  
   def find(piece)
-    @grid.flatten.compact.each {|place| return place.pos if place == piece }
+    @grid.each_with_index  do |row, i|
+      row.each_with_index do |col, j|
+        return [i, j] if col == piece
+      end
+    end
   end
 
   def dup

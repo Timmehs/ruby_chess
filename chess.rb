@@ -9,15 +9,18 @@ require './resources'
 # p r.moves
 
 b = Board.new
-b.move([1,2], [3,2])
-b.move([0,3], [3,0])
-b.move([6,3], [5,3])
 
+
+b.move([1,5], [3,5])
+b.move([6,4], [4,4])
+b.move([1,6], [3,6])
+b.move([7,3], [3,7])
 b.display
 
-p b.in_check?(:white)
+p b.checkmate?(:black)
+p b[[0,4]].valid_moves
 
-p b.find(b[[1,6]])
+
 
 
 
