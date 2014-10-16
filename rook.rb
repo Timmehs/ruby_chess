@@ -5,6 +5,6 @@ class Rook < SlidingPiece
   end
   
   def to_s
-    'R'
+   colorize("\u2656".center(3))
   end
 end

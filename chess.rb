@@ -15,10 +15,10 @@ class Chess
         turn = white_turn ? :white : :black
         puts "#{turn.to_s.capitalize} team's turn"
         piece, target = @player.play_turn
-        raise StandardError if @board[piece].color != turn
-        @board.move(piece, target)
-      rescue StandardError
-        puts "CANNOT MOVE OPPONENT'S PIECE!"
+        raise StandardError.new("Enemy piece") if @board[piece].color != turn
+        raise StandardError.new("Illegal Move") unless @board.move(piece, target)
+      rescue StandardError => e
+        puts "#{e.message}"
         retry
       end
       white_turn = !white_turn

@@ -12,6 +12,6 @@ class Bishop < SlidingPiece
   end
   
   def to_s
-    'B'
+    colorize("\u2657".center(3))
   end
 end

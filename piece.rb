@@ -42,4 +42,10 @@ class Piece
   def valid_moves
     self.moves.select {|move| move unless move_into_check?(move)}
   end
+  
+  def colorize(string)
+    color = @color == :black ? "\e[30m" : "\e[37m"
+    color + string + "\e[0m"
+  end
+
 end

@@ -6,6 +6,7 @@ class Board
   def initialize(empty_board = false)
       @grid = Array.new(8) { Array.new(8) }
       set_board(@grid) unless empty_board
+      @captured_pieces = []
   end
   
   def in_check?(color)
@@ -13,6 +14,7 @@ class Board
     check = false
     @grid.flatten.compact.each do |piece|
       if piece && piece.color != color && piece.moves.include?(king)
+        puts "CHECK!"
         check = true
       end
     end
@@ -32,9 +34,10 @@ class Board
     puts "CHESS".center(28)
     
     @grid.each_with_index do |row, i|
-      row_str = "\e[36m#{8 - i}\e[0m"
+      row_str = "#{8 - i} "
       row.each_with_index do |piece, j|
-        row_str += piece ? piece.to_s.rjust(3) : "_".rjust(3)
+        new_string = piece ? piece.to_s : "   \e[0m"
+        row_str += background([i, j], new_string.center(3))
       end
       puts row_str
     end
@@ -42,6 +45,8 @@ class Board
     footer = ' '
     ('A'..'H').each { |letter| footer += "\e[36m#{letter.rjust(3)}\e[0m" }
     puts footer
+    
+    print_captured_pieces
   end
   
   def set_board(matrix)
@@ -79,37 +84,41 @@ class Board
     matrix[row] = new_pieces
   end
   
-  def [](pos)
-    row, col = pos[0],pos[1]
-    
-    @grid[row][col]
-  end
-  
-  def []=(pos, piece)
-    row, col = pos[0],pos[1]
 
-    @grid[row][col] = piece
-  end
   
   def move(pos1, pos2)
+    piece = self[pos1]
+    target = self[pos2]
     
     begin
-      piece = self[pos1]
       raise IllegalMoveError.new("Can't move empty place") if !piece
       moves = piece.valid_moves
-      target = self[pos2]
       raise IllegalMoveError.new("Illegal move")if !moves.include?(pos2)
-      
-        
-      self[pos1], self[pos2] = self[pos2], self[pos1]
+      if piece && target
+        capture_piece(piece, target)
+      else
+        self[pos1], self[pos2] = self[pos2], self[pos1]
+      end
       piece.update_pos
       return true
     rescue IllegalMoveError => e
       puts "IllegalMoveError: #{e}"
       return false
     end
+    
   end
   
+  def capture_piece(piece, target)
+    self[target.pos] = piece
+    @captured_pieces << target
+    self[piece.pos] = nil
+  end
+  
+  def print_captured_pieces
+    captured_str = "Captured: "
+    @captured_pieces.each {|piece| captured_str += piece.to_s.rjust(3)}
+    puts captured_str
+  end
   def checkmate?(color)
     @grid.flatten.compact.each do |piece|
       next if piece.color != color
@@ -141,9 +150,7 @@ class Board
   
   def find(piece)
     @grid.each_with_index  do |row, i|
-      row.each_with_index do |col, j|
-        return [i, j] if col == piece
-      end
+      row.each_with_index { |col, j| return [i, j] if col == piece }
     end
   end
 
@@ -157,6 +164,27 @@ class Board
     end
 
     dup_board
+  end
+  
+  def [](pos)
+    row, col = pos[0],pos[1]
+    
+    @grid[row][col]
+  end
+  
+  def []=(pos, piece)
+    row, col = pos[0],pos[1]
+    @grid[row][col] = piece
+  end
+  
+  def background(pos, string)
+    background = ""
+    if pos[0].even?
+      background = pos[1].even? ? "\e[47m" : "\e[37m"
+    else
+      background = pos[1].odd? ? "\e[47m" : "\e[37m"
+    end
+    background + string
   end
   
 end

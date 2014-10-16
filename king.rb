@@ -5,6 +5,6 @@ class King < SteppingPiece
   end
   
   def to_s
-    'K'
+   colorize("\u2654".center(3))
   end
 end

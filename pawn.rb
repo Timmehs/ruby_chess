@@ -2,7 +2,7 @@ class Pawn < Piece
  attr_accessor :first_move
  
   def to_s
-    'p'
+    colorize("\u2659".center(3))
   end
   
   def first_move?

@@ -5,6 +5,6 @@ class Knight < SteppingPiece
   end
   
   def to_s
-    'k'
+    colorize("\u2658".center(3))
   end
 end

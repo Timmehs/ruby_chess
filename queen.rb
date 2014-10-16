@@ -2,6 +2,6 @@ class Queen < SlidingPiece
     
 
   def to_s
-    'Q'
+    colorize("\u2655".center(3))
   end
 end
