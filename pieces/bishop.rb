@@ -1,4 +1,4 @@
-require './sliding_piece'
+
 
 class Bishop < SlidingPiece
     
